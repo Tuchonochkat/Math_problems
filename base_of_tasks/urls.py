@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.contrib.auth.views import LogoutView
-from problems.views import start_view, LogView, problems_view, task_view, task_edit_view, new_task_view
+from problems.views import start_view, LogView, problems_view, task_view, task_edit_view, new_task_view, load_categories
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,4 +27,5 @@ urlpatterns = [
     path('task_<int:id>', task_view),
     path('task_<int:id>/edit', task_edit_view),
     path('task/new', new_task_view),
+    path('ajax/load-categories/', load_categories, name='ajax_load_categories'),
 ]

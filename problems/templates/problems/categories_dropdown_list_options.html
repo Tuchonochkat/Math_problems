@@ -1,0 +1,8 @@
+<option value="">все категории</option>
+{% for category in categories %}
+{% if category == selected %}
+<option selected value="{{ category.id }}">{{ category.name }}</option>
+{% else %}
+<option value="{{ category.id }}">{{ category.name }}</option>
+{% endif %}
+{% endfor %}
