@@ -1,0 +1,72 @@
+{% extends "problems/main.html" %}
+{% block title %} Задачи {% endblock %}
+{% block content %}
+		<table class="viewingtable">
+			<tr class="viewingtablecell">
+				<td class="viewingtablecell">
+					<div class="componentboxsecond">
+						<div class="componentboxheader">
+ Задача {{ task.id }}<br/>
+						</div>
+						<div class="componentboxcontents">
+							<table class="problemdetailscaptiontable">
+								<tr>
+									<td class="problemdetailssubject">
+										<table class="problemdetailssubjecttable">
+											<tr class="problemdetailssubjecttablecell">
+												<td class="problemdetailssubjecttablecell" rowspan="1">
+													Тема:&nbsp;&nbsp;&nbsp;
+												</td>
+												<td class="problemdetailssubjecttablecell">[</td>
+												<td class="problemdetailssubjecttablecell">
+													<nobr>
+														<a class="componentboxlink"
+															href="/"
+														>
+															Тема-категория
+                                                        </a>
+													</nobr>
+												</td>
+												<td class="problemdetailssubjecttablecell">]</td>
+											</tr>
+										</table>
+									</td>
+									<td class="problemdetailsdifficulty">
+										{% if task.id_type %}
+										<nobr>Тип: {{ task.id_type }}</nobr><br/>
+										{% endif %}
+										<nobr>Классы: ...</nobr><br/>
+									</td>
+									<td class="problemdetailsbasket">
+										<a class="componentboxlink"
+											href="task_{{ task.id }}&amp;into_basket={{ task.id }}"
+										>
+											Добавить в подборку
+                                        </a><br/>
+										<nobr>
+											<a
+												class="componentboxlink"
+												href="/task_{{ task.id }}/edit"
+											>
+												Редактировать
+											</a>
+										</nobr>
+									</td>
+								</tr>
+							</table>
+<br/><h3>Условие</h3><p/> {{ task.task }}
+							{% if task.img_task %}
+								<p/> {{ task.img_task }}
+							{% endif %}
+<br/><h3>Решение</h3><p/> {{ task.solution }}
+							{% if task.img_solution %}
+								<p/> {{ task.img_solution }}
+							{% endif %}
+</div>
+						</div>
+					</div>
+				</td>
+			</tr>
+		</table>
+		<hr/>
+{% endblock %}
