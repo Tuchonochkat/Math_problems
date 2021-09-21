@@ -1,16 +1,24 @@
 {% extends "problems/main.html" %}
 {% block title %} Задачи {% endblock %}
 {% block content %}
+{% load widget_tweaks %}
+<div class="container bg-light">
 <div class="componentbox">
 	<div class="componentboxheader"> Фильтр </div>
-	<div class="componentboxcontents" id="filter_box_contents" style="display:block">
+	<div class="row" id="filter_box_contents" style="display:block">
 
-		<form method="get" id="themeForm" data-categories-url="{% url 'ajax_load_categories' %}" novalidate>
+		<form method="get" id="themeForm" data-categories-url="{% url 'ajax_load_categories' %}" novalidate class="form-group">
 			{% csrf_token %}
-			<table>
-				{{ ThemeForm.as_table }}
-			</table>
-			<button type="submit">Показать</button>
+			<div class="row">
+				{% for field in FilterForm %}
+					<div class="col-sm">
+						{{ field|add_class:"form-control" }}
+					</div>
+				{% endfor %}
+				<div class="col-sm">
+					<button type="submit" class="btn btn-dark" style="background-color: #003f6e;">Показать</button>
+				</div>
+			</div>
 		</form>
 
 		<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
@@ -33,94 +41,14 @@
 
 	</div>
 </div>
-<div class="componentbox">
-	<div class="componentboxheader"> Задачи </div>
-	<div class="componentboxcontents" id="filter_box_contents" style="display:block">
-		<nav aria-label="Page navigation example">
-		  <ul class="pagination">
-		    <li class="page-item">
-			{% if problems.has_previous %}
-		      <a class="page-link" href="?theme={{ theme }}&category={{ category }}&page={{ problems.previous_page_number }}" aria-label="Previous">
-		        <span aria-hidden="true">&laquo;</span>
-		        <span class="sr-only">Previous</span>
-		      </a>
-			{% endif %}
-		    </li>
-			  {% for i in pages_before %}
-			  <li class="page-item"><a class="page-link" href="?theme={{ theme }}&category={{ category }}&page={{ i }}">{{ i }}</a></li>
-			  {% endfor %}
-
-			  <li class="page-item active"><a class="page-link" href="?theme={{ theme }}&category={{ category }}&page={{ problems.number  }}">{{ problems.number  }}</a></li>
-
-			  {% for i in pages_after %}
-			  <li class="page-item"><a class="page-link" href="?theme={{ theme }}&category={{ category }}&page={{ i }}">{{ i }}</a></li>
-			  {% endfor %}
-
-			  {% if problems.has_next %}
-		    	<li class="page-item">
-		    	  <a class="page-link" href="?theme={{ theme }}&category={{ category }}&page={{ problems.next_page_number }}" aria-label="Next">
-		    	    <span aria-hidden="true">&raquo;</span>
-		    	    <span class="sr-only">Next</span>
-		    	  </a>
-		    	</li>
-			  {% endif %}
-			  <li class="page-item">Всего страниц: {{ problems.paginator.num_pages }}</li>
-		  </ul>
-		</nav>
-	</div>
-</div> <br/>
-<hr/> {% for task in problems %} <a name="task_{{ task.id }}"></a>
-<table class="problemsmallcaptiontable">
-	<tr>
-		<td class="problemsmallnumber">
-			<nobr>
-				<h3 style="display:inline"> Задача <a class="componentboxlink" href="/task_{{ task.id }}">
-						{{ task.id }}</a> </h3>
-			</nobr>
-		</td>
-		<td class="problemsmallsubject">
-			<table class="problemsmallsubjecttable">
-				<tr class="problemsmallsubjecttablecell">
-					<td class="problemsmallsubjecttablecell" rowspan="1"> Тема: &nbsp; </td>
-					<td class="problemsmallsubjecttablecell"> [ </td>
-					<!--                    перечисление тем-категорий, к которым относится задача-->
-					<!--                    {% for-->
-					<!--					    <td class="problemsmallsubjecttablecell">-->
-					<!--					    	<nobr>-->
-					<!--					    		<a-->
-					<!--					    			class="componentboxlink"-->
-					<!--					    			href="/view_by_subject_new.php?parent=207"-->
-					<!--					    		>-->
-					<!--					    			Теория алгоритмов (прочее)							</a>-->
-					<!--					    	</nobr>-->
-					<!--					    </td>-->
-					<td class="problemsmallsubjecttablecell"> ] </td>
-				</tr>
-			</table>
-		</td>
-		<td class="problemsmalldifficulty">
-			{% if task.id_type %}
-			<nobr>Тип: {{ task.id_type }}</nobr><br/>
-			{% endif %}
-			<nobr>Траектории:...</nobr><br/> </td>
-	</tr>
-</table>
-<p/> {{ task.task }}
-<table class="problemfootertable">
-	<tr class="problemfootertablecell">
-		<td class="problemfootertablecell">
-			<nobr> <a class="componentboxlink" href="/problems&amp;into_basket={{ task.id }}#task_{{ task.id }}">
-					Добавить в подборку
-				</a> </nobr>
-		</td>
-		<td class="problemfootertablecell" width="100%" align="center">
-			<nobr> <a class="componentboxlink" href="/change/{{ task.id }}">
-					Изменить задачу
-				</a> </nobr>
-		</td>
-		<td class="problemfootertablecell"> &nbsp;&nbsp;&nbsp; <a class="componentboxlink" href="/task/{{ task.id }}">
-				Решение
-			</a> </td>
-	</tr>
-</table>
-<hr/> {% endfor %} {% endblock %}
+	<br/>
+<div class="row">
+	{% include 'problems/pagination.html' %}
+</div>
+<hr/> {% for problem in problems %}
+	{% include 'problems/one_task_block.html' %}
+	{% endfor %}
+<div class="row">
+{% include 'problems/pagination.html' %}
+</div>
+</div>{% endblock %}

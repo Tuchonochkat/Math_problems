@@ -1,8 +1,8 @@
-<option value="">все категории</option>
+<option value="">Категория не выбрана</option>
 {% for category in categories %}
 {% if category == selected %}
-<option selected value="{{ category.id }}">{{ category.name }}</option>
+<option selected value="{{ category.id }}">{{ category }}</option>
 {% else %}
-<option value="{{ category.id }}">{{ category.name }}</option>
+<option value="{{ category.id }}">{{ category }}</option>
 {% endif %}
 {% endfor %}

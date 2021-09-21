@@ -3,10 +3,11 @@ from django.core.paginator import Paginator
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
 
 
 from problems.models import Theme, Category, ThemeCategory, Type, Problem, ProblemCategory
-from problems.forms import TaskForm, ThemeForm
+from problems.forms import TaskForm, FilterForm
 
 
 class LogView(LoginView):
@@ -23,7 +24,10 @@ def start_view(request):
 
 def load_categories(request):
     theme = request.GET.get('theme')
-    categories = Category.objects.filter(themecategory__id_theme=theme).order_by('name')
+    if theme:
+        categories = Category.objects.filter(themecategory__id_theme=theme).order_by('name')
+    else:
+        categories = []
     selected = request.GET.get('category', None)
     return render(request, 'problems/categories_dropdown_list_options.html', {'categories': categories,
                                                                               'selected': selected})
@@ -36,16 +40,18 @@ def problems_view(request):
     if theme:
         if category:
             theme_cat = ThemeCategory.objects.values_list('id', flat=True).filter(id_theme=theme, id_category=category)
-            form = ThemeForm(qs=Category.objects.filter(themecategory__id_theme=theme).order_by('name'),
-                             initial={'theme': Theme.objects.get(id=theme), 'category': Category.objects.get(id=category)})
+            form = FilterForm(qs=Category.objects.filter(themecategory__id_theme=theme).order_by('name'),
+                              initial={'theme': Theme.objects.get(id=theme), 'category': Category.objects.get(id=category)})
         else:
             theme_cat = ThemeCategory.objects.values_list('id', flat=True).filter(id_theme=theme)
-            form = ThemeForm(qs=Category.objects.filter(themecategory__id_theme=theme).order_by('name'),
-                             initial={'theme': Theme.objects.get(id=theme)})
+            form = FilterForm(qs=Category.objects.filter(themecategory__id_theme=theme).order_by('name'),
+                              initial={'theme': Theme.objects.get(id=theme)})
     else:
         theme_cat = ThemeCategory.objects.values_list('id', flat=True).all()
-        form = ThemeForm
-    problems_list = Problem.objects.filter(problemcategory__id_theme_cat__in=theme_cat)
+        form = FilterForm
+    problems_list = [{'task': task,
+                      'categories': ThemeCategory.objects.filter(problemcategory__id_task=task)}
+                     for task in Problem.objects.filter(problemcategory__id_theme_cat__in=theme_cat)]
     paginator = Paginator(problems_list, 10)
     page_number = request.GET.get('page')
     if not page_number:
@@ -56,7 +62,7 @@ def problems_view(request):
                            'paginator': paginator,
                            'pages_before': [i for i in range(int(page_number) - 3, int(page_number)) if i > 0],
                            'pages_after': [i for i in range(int(page_number)+1, int(page_number)+4) if i <= paginator.num_pages],
-                           'ThemeForm': form,
+                           'FilterForm': form,
                            'theme': theme,
                            'category': category})
 
@@ -64,22 +70,56 @@ def problems_view(request):
 @login_required(login_url='/login')
 def task_view(request, id):
     task = Problem.objects.get(id=id)
+    problem = {'task': task, 'categories': ThemeCategory.objects.filter(problemcategory__id_task=task)}
     return render(request, 'problems/task.html',
-                  context={'task': task})
+                  context={'problem': problem})
 
 
 @login_required(login_url='/login')
 def task_edit_view(request, id):
+    # начальное значение для полей задачи
     task = get_object_or_404(Problem, id=id)
+    # задаем начальные значения тем и категорий
+    theme_cat = ThemeCategory.objects.filter(problemcategory__id_task=task.id).values_list('id', 'id_theme',
+                                                                                           'id_category')
+    themes = []
+    initial = {}
+    for i, item in enumerate(theme_cat):
+        themes.append(item[1])
+        initial['theme' + str(i + 1)] = Theme.objects.get(id=item[1])
+        if item[2]:
+            initial['category' + str(i + 1)] = Category.objects.get(id=item[2])
+
     if request.method == "POST":
-        form = TaskForm(request.POST, instance=task)
+        print('post')
+        form = TaskForm(request.POST, instance=task, themes=themes, initial=initial)
         if form.is_valid():
+            print('valid')
             task = form.save(commit=False)
             task.save()
+            theme_cat_old = ThemeCategory.objects.filter(problemcategory__id_task=task)
+            theme_cat_new = ThemeCategory.objects.none()
+            for i in range(5):
+                theme = form.cleaned_data.get('theme' + str(i+1), None)
+                category = form.cleaned_data.get('category'+str(i+1), None)
+                if theme:
+                    theme_cat_new = theme_cat_new.union(ThemeCategory.objects.filter(id_theme=theme, id_category=category))
+            category_to_remove = theme_cat_old.difference(theme_cat_new)
+            category_to_add = theme_cat_new.difference(theme_cat_old)
+            for cat in category_to_remove:
+                ProblemCategory.objects.filter(id_task=task, id_theme_cat=cat).delete()
+            for cat in category_to_add:
+                ProblemCategory.objects.create(id_task=task, id_theme_cat=cat)
             return redirect('/task_'+str(id))
+        print('errors:')
+        for field in form:
+            print(field.name, field.errors)
     else:
-        form = TaskForm(instance=task)
-    return render(request, 'problems/task_edit.html', {'form': form})
+        form = TaskForm(instance=task,
+                        themes=themes,
+                        initial=initial)
+        print('not post')
+    return render(request, 'problems/task_edit.html', {'form': form, 'id': id})
 
 
 @login_required(login_url='/login')
@@ -90,6 +130,15 @@ def new_task_view(request):
             task = form.save(commit=False)
             task.id_google = 0
             task.save()
+            if not task.id_orig:
+                task.id_orig = task.id
+                task.save()
+            for i in range(5):
+                theme = form.cleaned_data.get('theme'+str(i+1), None)
+                category = form.cleaned_data.get('category'+str(i+1), None)
+                if theme:
+                    theme_category = ThemeCategory.objects.get(id_theme=theme, id_category=category)
+                    ProblemCategory.objects.get_or_create(id_task=task, id_theme_cat=theme_category)
             return redirect('/task_'+str(task.id))
     else:
         form = TaskForm()

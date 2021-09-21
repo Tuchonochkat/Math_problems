@@ -1,9 +1,197 @@
 {% extends "problems/main.html" %}
 {% block title %} Задачи {% endblock %}
 {% block content %}
-    <h1>Задача</h1>
-    <form method="POST" class="post-form">{% csrf_token %}
-        {{ form.as_p }}
+{% load widget_tweaks %}
+    <form method="POST" class="post-form" id="taskForm" data-categories-url="{% url 'ajax_load_categories' %}" novalidate>{% csrf_token %}
+        <div class="row">
+            <h4>
+                {% if id %}
+                Задача {{ id }}
+                {% else %}
+                Новая задача
+                {% endif %}
+            </h4>
+        </div>
+        <div class="row">
+            <div class="col-sm">
+                <h6>Тип</h6>
+                {{ form.id_type|add_class:"form-control" }}
+            </div>
+            <div class="col-sm">
+                <h6>Номер оригинала (если это дубль)</h6>
+                {{ form.id_orig|add_class:"form-control" }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm">
+                <h6>Условие</h6>
+                {{ form.task|add_class:"form-control" }}
+            </div>
+             <div class="col-sm">
+                <h6>Решение</h6>
+                {{ form.solution|add_class:"form-control" }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm">
+                <h6>Ссылка на рисунок к условию</h6>
+                {{ form.img_task|add_class:"form-control" }}
+            </div>
+            <div class="col-sm">
+                <h6>Ссылка на рисунок к решению</h6>
+                {{ form.img_solution|add_class:"form-control" }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm">
+                <h6>Тема</h6>
+            </div>
+            <div class="col-sm">
+                <h6>Категория</h6>
+            </div>
+        </div>
+        <div class="col-sm">
+            {{ form.theme1 }}
+            {{ form.category1 }}
+            {{ form.theme2 }}
+            {{ form.category2 }}
+            {{ form.theme3 }}
+            {{ form.category3 }}
+            {{ form.theme4 }}
+            {{ form.category4 }}
+            {{ form.theme5 }}
+            {{ form.category5 }}
+        </div>
+<!--        <div class="row">-->
+<!--            <div class="col-sm">-->
+<!--                {{ form.theme1|add_class:"form-control" }}-->
+<!--            </div>-->
+<!--            <div class="col-sm">-->
+<!--                {{ form.category1|add_class:"form-control" }}-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="row">-->
+<!--            <div class="col-sm">-->
+<!--                {{ form.theme2|add_class:"form-control" }}-->
+<!--            </div>-->
+<!--            <div class="col-sm">-->
+<!--                {{ form.category2|add_class:"form-control" }}-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="row">-->
+<!--            <div class="col-sm">-->
+<!--                {{ form.theme3|add_class:"form-control" }}-->
+<!--            </div>-->
+<!--            <div class="col-sm">-->
+<!--                {{ form.category3|add_class:"form-control" }}-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="row">-->
+<!--            <div class="col-sm">-->
+<!--                {{ form.theme4|add_class:"form-control" }}-->
+<!--            </div>-->
+<!--            <div class="col-sm">-->
+<!--                {{ form.category4|add_class:"form-control" }}-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="row">-->
+<!--            <div class="col-sm">-->
+<!--                {{ form.theme5|add_class:"form-control" }}-->
+<!--            </div>-->
+<!--            <div class="col-sm">-->
+<!--                {{ form.category5|add_class:"form-control" }}-->
+<!--            </div>-->
+<!--        </div>-->
+
+        <div class="row">
+            <div class="col-sm">
+                <h6>Комментарий к задаче</h6>
+                {{ form.comment|add_class:"form-control" }}
+            </div>
+            <div class="col-sm">
+                <h6>Дата, до которой задачу нельзя использовать в подборках</h6>
+                {{ form.date_using|add_class:"form-control" }}
+            </div>
+        </div>
         <button type="submit" class="save btn btn-default">Сохранить</button>
     </form>
+
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+		<script>
+		    $("#id_theme1").change(function () {
+		      var url = $("#taskForm").attr("data-categories-url");
+		      var themeId = $(this).val();
+
+		      $.ajax({
+		        url: url,
+		        data: {
+		          'theme': themeId
+		        },
+		        success: function (data) {
+		          $("#id_category1").html(data);
+		        }
+		      });
+		    });
+
+		    $("#id_theme2").change(function () {
+		      var url = $("#taskForm").attr("data-categories-url");
+		      var themeId = $(this).val();
+
+		      $.ajax({
+		        url: url,
+		        data: {
+		          'theme': themeId
+		        },
+		        success: function (data) {
+		          $("#id_category2").html(data);
+		        }
+		      });
+		    });
+
+		    $("#id_theme3").change(function () {
+		      var url = $("#taskForm").attr("data-categories-url");
+		      var themeId = $(this).val();
+
+		      $.ajax({
+		        url: url,
+		        data: {
+		          'theme': themeId
+		        },
+		        success: function (data) {
+		          $("#id_category3").html(data);
+		        }
+		      });
+		    });
+
+		    $("#id_theme4").change(function () {
+		      var url = $("#taskForm").attr("data-categories-url");
+		      var themeId = $(this).val();
+
+		      $.ajax({
+		        url: url,
+		        data: {
+		          'theme': themeId
+		        },
+		        success: function (data) {
+		          $("#id_category4").html(data);
+		        }
+		      });
+		    });
+
+		    $("#id_theme5").change(function () {
+		      var url = $("#taskForm").attr("data-categories-url");
+		      var themeId = $(this).val();
+
+		      $.ajax({
+		        url: url,
+		        data: {
+		          'theme': themeId
+		        },
+		        success: function (data) {
+		          $("#id_category5").html(data);
+		        }
+		      });
+		    });
+		  </script>
 {% endblock %}
