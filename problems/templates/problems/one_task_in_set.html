@@ -1,0 +1,59 @@
+<div class="row py-2 px-2 ml-0">
+    <div class="col-sm-2">
+        <a href="/problems&amp;into_basket={{ task.id }}#task_{{ task.id }}" class="text-success">
+            Добавить в подборку</a>
+        <br>
+        <button class="btn text-secondary" type="button" data-bs-toggle="collapse"
+                data-bs-target="#solution_{{ set_task.id }}" aria-expanded="true"
+                aria-controls="solution_{{ set_task.id }}">
+                Скрыть решение
+        </button>
+        {% if set_task.comments %}
+        <button class="btn text-info" type="button" data-bs-toggle="collapse"
+                data-bs-target="#comments_{{ set_task.id }}" aria-expanded="false"
+                aria-controls="comments_{{ set_task.id }}">
+                Показать комментарии
+        </button>
+        {% else %}
+        <button class="btn text-secondary" type="button" data-bs-toggle="collapse"
+                data-bs-target="#comments_{{ set_task.id }}" aria-expanded="false"
+                aria-controls="comments_{{ set_task.id }}">
+                Комментировать
+        </button>
+        {% endif %}
+    </div>
+    <div class="col-sm-1">
+        <h5><a href="/task_{{ task.id }}" class="text-secondary">
+            {{ set_task.enum_task }}</a></h5>
+    </div>
+    <div class="col-sm-5">
+        {{ task.task }}
+		{% if task.img_task %}
+        <br/>
+		Рисунок: <a href="{{ task.img_task }}" class="text-secondary">
+		{{ task.img_task }}</a>
+		{% endif %}
+    </div>
+    <div class="col-sm-4">
+        <div class="collapse" id="solution_{{ set_task.id }}">
+            <p class="text-secondary">
+            {{ task.solution }}
+		    {% if task.img_solution %}
+            <br/>
+		    Рисунок: <a href="{{ task.img_solution }}" class="text-secondary">
+		    {{ task.img_solution }}</a>
+		    {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <div class="col-sm-9 offset-md-3">
+        <div class="collapse" id="comments_{{ set_task.id }}">
+            {% for comment in set_task.comments %}
+            <p class="{% cycle 'text-success' 'text-danger' 'text-warning' 'text-info' %}">
+                {{ comment.author }}: <span class="font-weight-lighter">{{ comment }}</span>
+            </p>
+            {% endfor %}
+        </div>
+    </div>
+</div>

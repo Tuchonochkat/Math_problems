@@ -1,55 +1,75 @@
 <div class="row px-0">
 	<div class="row py-2 px-2 ml-0">
 		<div class="col-sm-2">
-			<h4>Задача <a href="/task_{{ problem.task.id }}" class="text-secondary">
-						{{ problem.task.id }}</a></h4>
+			<h4>Задача <a href="/task_{{ task.id }}" class="text-secondary">
+						{{ task.id }}</a></h4>
 		</div>
 		<div class="col-sm-1">
 			Категории:
 		</div>
-		<div class="col-sm-4">
-			{% for category in problem.categories %}
+		<div class="col-sm-3">
+			{% for category in task.categories %}
 			<a href="/problems/?theme={{ category.id_theme.id }}&category={{ category.id_category.id }}"
 			 class="text-secondary">
 				{{ category.id_theme }}.
 				{% if category.id_category %} {{ category.id_category }}. {% endif %}</a><br/>
 			{% endfor %}
 		</div>
-		<div class="col-sm-3">
-			{% if problem.task.id_type %}
-			Тип: {{ problem.task.id_type }}
-				{% if problem.task.id_type == double %}
-					<div class="w-100"></div>
-					Оригинал: <a href="/task_{{ problem.task.id_orig }}">{{ problem.task.id_orig }}</a>
+
+		<div class="col-sm-4">
+			{% if task.id_type %}
+				Тип: {{ task.id_type }}
+			{% endif %}
+			<br/>
+			{% if task.dubles %}
+				{% if task.id == task.id_orig %}
+					У задачи есть <a href="/task_{{ task.id }}">дубли</a>
+				{% else %}
+					Оригинал: <a href="/task_{{ task.id_orig }}">{{ task.id_orig }}</a>
 				{% endif %}
+			{% else %}
+				У задачи нет дублей
 			{% endif %}
 		</div>
 
 		<div class="col-sm-2">
-			<a href="/problems&amp;into_basket={{ problem.task.id }}#task_{{ problem.task.id }}" class="text-success">
+			<a href="/problems&amp;into_basket={{ task.id }}#task_{{ task.id }}" class="text-success">
 					Добавить в подборку</a>
 			<br>
-			<a href="/task_{{ problem.task.id }}/edit" class="text-danger">
+			<a href="/task_{{ task.id }}/edit" class="text-danger">
 					Редактировать</a>
 		</div>
 	</div>
 		<br/>
 	<div class="row">
-		<h5>Условие</h5>
-		<p/> {{ problem.task.task }}
-		{% if problem.task.img_problem %}
-		<p/>Рисунок: <a href="{{ problem.task.img_problem }}" class="text-secondary">
-		{{ problem.task.img_problem }}</a>
+		<div class="col-sm-10">
+			<h5>Условие</h5>
+			<p/> {{ task.task }}
+			{% if task.img_task %}
+			<p/>Рисунок: <a href="{{ task.img_task }}" class="text-secondary">
+			{{ task.img_task }}</a>
+			{% endif %}
+		</div>
+		<div class="col-sm-2">
+		{% if task.syllabuses %}
+			Используется в:<br/>
+			{% for syllabus in task.syllabuses %}
+			<a href="/sets/{{ syllabus.id }}" class="text-secondary">{{ syllabus }}</a>
+			<br/>
+			{% endfor %}
+		{% else %}
+			Не используется
 		{% endif %}
+		</div>
 	</div>
 
 	<div class="row">
 		<br/>
 		<h5>Решение</h5>
-		<p/> {{ problem.task.solution }}
-		{% if problem.task.img_solution %}
-		<p/>Рисунок: <a href="{{ problem.task.img_solution }}" class="text-secondary">
-		{{ problem.task.img_solution }}</a>
+		<p/> {{ task.solution }}
+		{% if task.img_solution %}
+		<p/>Рисунок: <a href="{{ task.img_solution }}" class="text-secondary">
+		{{ task.img_solution }}</a>
 		{% endif %}
 	</div>
 <hr/>

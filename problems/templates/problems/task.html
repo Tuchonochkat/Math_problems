@@ -2,6 +2,12 @@
 {% block title %} Задачи {% endblock %}
 {% block content %}
 <div class="container bg-light">
-{% include 'problems/one_task_block.html' %}
+	{% include 'problems/one_task_block.html' %}
+	<div class="row py-2 bg-secondary text-white">
+		<h3 class="text-center text-light">Дубли задачи</h3>
+	</div>
+    {% for task in task.dubles %}
+	{% include 'problems/one_task_block.html' %}
+	{% endfor %}
 </div>
 {% endblock %}

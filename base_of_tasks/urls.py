@@ -17,7 +17,8 @@ from django.contrib import admin
 from django.urls import path
 from django.contrib.auth.views import LogoutView
 from django.views.generic.base import RedirectView
-from problems.views import start_view, LogView, problems_view, task_view, task_edit_view, new_task_view, load_categories
+from problems.views import start_view, LogView, problems_view, task_view, task_edit_view, new_task_view, \
+    sets_view, load_categories, syllabus_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -30,4 +31,6 @@ urlpatterns = [
     path('task_<int:id>/edit', task_edit_view),
     path('task/new', new_task_view),
     path('ajax/load-categories/', load_categories, name='ajax_load_categories'),
+    path('sets/', sets_view),
+    path('sets/<int:id_syllabus>', syllabus_view),
 ]

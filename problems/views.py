@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 
 
-from problems.models import Theme, Category, ThemeCategory, Type, Problem, ProblemCategory
+from problems.models import Theme, Category, ThemeCategory, Problem, ProblemCategory, Trajectory, Syllabus
 from problems.forms import TaskForm, FilterForm
 
 
@@ -49,9 +49,7 @@ def problems_view(request):
     else:
         theme_cat = ThemeCategory.objects.values_list('id', flat=True).all()
         form = FilterForm
-    problems_list = [{'task': task,
-                      'categories': ThemeCategory.objects.filter(problemcategory__id_task=task)}
-                     for task in Problem.objects.filter(problemcategory__id_theme_cat__in=theme_cat)]
+    problems_list = Problem.objects.filter(problemcategory__id_theme_cat__in=theme_cat).distinct('id').order_by('id')
     paginator = Paginator(problems_list, 10)
     page_number = request.GET.get('page')
     if not page_number:
@@ -70,9 +68,8 @@ def problems_view(request):
 @login_required(login_url='/login')
 def task_view(request, id):
     task = Problem.objects.get(id=id)
-    problem = {'task': task, 'categories': ThemeCategory.objects.filter(problemcategory__id_task=task)}
     return render(request, 'problems/task.html',
-                  context={'problem': problem})
+                  context={'task': task})
 
 
 @login_required(login_url='/login')
@@ -82,17 +79,15 @@ def task_edit_view(request, id):
     # задаем начальные значения тем и категорий
     theme_cat = ThemeCategory.objects.filter(problemcategory__id_task=task.id).values_list('id', 'id_theme',
                                                                                            'id_category')
-    themes = []
     initial = {}
     for i, item in enumerate(theme_cat):
-        themes.append(item[1])
         initial['theme' + str(i + 1)] = Theme.objects.get(id=item[1])
         if item[2]:
             initial['category' + str(i + 1)] = Category.objects.get(id=item[2])
 
     if request.method == "POST":
         print('post')
-        form = TaskForm(request.POST, instance=task, themes=themes, initial=initial)
+        form = TaskForm(request.POST, instance=task, initial=initial)
         if form.is_valid():
             print('valid')
             task = form.save(commit=False)
@@ -116,7 +111,6 @@ def task_edit_view(request, id):
             print(field.name, field.errors)
     else:
         form = TaskForm(instance=task,
-                        themes=themes,
                         initial=initial)
         print('not post')
     return render(request, 'problems/task_edit.html', {'form': form, 'id': id})
@@ -143,3 +137,15 @@ def new_task_view(request):
     else:
         form = TaskForm()
     return render(request, 'problems/task_edit.html', {'form': form})
+
+
+@login_required(login_url='/login')
+def sets_view(request):
+    return render(request, 'problems/trajectories.html',
+                  context={'trajectories': Trajectory.objects.all()})
+
+
+@login_required(login_url='/login')
+def syllabus_view(request, id_syllabus):
+    return render(request, 'problems/syllabus.html',
+                  context={'syllabus': Syllabus.objects.get(id=id_syllabus)})

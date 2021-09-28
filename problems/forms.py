@@ -23,7 +23,7 @@ class TaskForm(forms.ModelForm):
     )
     category2 = forms.ModelChoiceField(
         label='Категория 2',
-        queryset=None,
+        queryset=Category.objects,
         empty_label='Категория не выбрана',
         required=False
     )
@@ -65,25 +65,23 @@ class TaskForm(forms.ModelForm):
     )
 
     def __init__(self, *args, **kwargs):
-        themes = kwargs.pop('themes', None)
         super(TaskForm, self).__init__(*args, **kwargs)
-        if themes:
-            for count, th in enumerate(themes):
-                self.fields['category'+str(count+1)].queryset = Category.objects.filter(themecategory__id_theme=th).order_by('name')
+        for i in range(5):
+            theme = self['theme'+str(i+1)].initial
+            if theme:
+                self.fields['category' + str(i + 1)].queryset = Category.objects.filter(
+                    themecategory__id_theme=theme).order_by('name')
+
+    def clean_category2(self):
+        return self.cleaned_data['category2']
 
     def clean(self):
         cleaned_data = super().clean()
-        themes = []
-        categories = []
         for i in range(5):
-            themes.append(cleaned_data.get('theme'+str(i+1)))
-            categories.append(cleaned_data.get('category' + str(i+1)))
-            if themes[i] and categories[i] not in Category.objects.filter(themecategory__id_theme=themes[i]):
+            theme = cleaned_data.get('theme'+str(i+1))
+            category = cleaned_data.get('category' + str(i+1))
+            if theme and category not in Category.objects.filter(themecategory__id_theme=theme):
                 self.add_error('category' + str(i+1), 'Категория не относится к данной теме')
-
-    def clean_category2(self):
-        data = self.cleaned_data['category2']
-        return data
 
     class Meta:
         model = Problem

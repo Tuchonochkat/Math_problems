@@ -58,6 +58,18 @@ class Problem(models.Model):
     class Meta:
         db_table = 'problem'
 
+    def categories(self):
+        return ThemeCategory.objects.filter(problemcategory__id_task=self)
+
+    def dubles(self):
+        return Problem.objects.filter(id_orig=self.id_orig).exclude(id=self.id)
+
+    def type(self):
+        return Type.objects.get(id=self.id_type)
+
+    def syllabuses(self):
+        sets = Set.objects.values_list('id_syllabus', flat=True).filter(settask__id_task=self)
+        return Syllabus.objects.filter(id__in=sets).distinct('id')
 
 class ProblemCategory(models.Model):
     id_task = models.ForeignKey(Problem, models.CASCADE, db_column='id_task')
@@ -73,6 +85,12 @@ class Trajectory(models.Model):
     class Meta:
         db_table = 'trajectory'
 
+    def __str__(self):
+        return self.name
+
+    def syllabuses(self):
+        return Syllabus.objects.filter(id_trajectory=self.id)
+
 
 class Syllabus(models.Model):
     id_trajectory = models.ForeignKey('Trajectory', models.CASCADE, db_column='id_trajectory', blank=True, null=True)
@@ -81,14 +99,27 @@ class Syllabus(models.Model):
     class Meta:
         db_table = 'syllabus'
 
+    def __str__(self):
+        return self.name
+
+    def sets(self):
+        return Set.objects.filter(id_syllabus=self.id).order_by('enum_set')
+
 
 class Set(models.Model):
     id_syllabus = models.ForeignKey('Syllabus', models.CASCADE, db_column='id_syllabus', blank=True, null=True)
     name = models.CharField(max_length=63, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
+    enum_set = models.IntegerField()
 
     class Meta:
         db_table = 'set'
+
+    def __str__(self):
+        return self.name
+
+    def tasks(self):
+        return SetTask.objects.filter(id_set=self.id).order_by('enum_task')
 
 
 class SetTask(models.Model):
@@ -100,6 +131,8 @@ class SetTask(models.Model):
     class Meta:
         db_table = 'set_task'
 
+    def comments(self):
+        return Comments.objects.filter(id_set_task=self).order_by('date')
 
 class Comments(models.Model):
     id_set_task = models.ForeignKey('SetTask', models.CASCADE, db_column='id_set_task')
@@ -109,3 +142,6 @@ class Comments(models.Model):
 
     class Meta:
         db_table = 'comments'
+
+    def __str__(self):
+        return self.description

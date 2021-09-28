@@ -1,0 +1,21 @@
+{% extends "problems/main.html" %}
+{% block title %} Подборки {% endblock %}
+{% block content %}
+<div class="container bg-light">
+	<div class="row py-2">
+		<h3 class="text-center text-dark">Все учебные планы</h3>
+        <hr/>
+	</div>
+    <ul>
+        {% for trajectory in trajectories %}
+        <li><h4 class="text-dark"> {{ trajectory }}</h4>
+        <ul>
+            {% for syllabus in trajectory.syllabuses %}
+            <li><a href="/sets/{{ syllabus.id }}" class="text-success">{{ syllabus }}</a></li>
+            {% endfor %}
+        </ul></li>
+        <br/>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
