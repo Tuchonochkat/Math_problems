@@ -45,7 +45,7 @@ class ThemeCategory(models.Model):
         db_table = 'theme_category'
 
     def __str__(self):
-        if self.id_category:
+        if self.id_category is not None:
             return '{}. {}.'.format(self.id_theme, self.id_category)
         else:
             return '{}.'.format(self.id_theme)
@@ -61,6 +61,7 @@ class Problem(models.Model):
     id_orig = models.IntegerField(blank=True, null=True)
     date_using = models.DateField(blank=True, null=True)
     comment = models.TextField(blank=True, null=True)
+    categories_field = models.ManyToManyField(ThemeCategory, through='ProblemCategory', blank=True)
 
     class Meta:
         db_table = 'problem'
@@ -77,6 +78,7 @@ class Problem(models.Model):
     def syllabuses(self):
         sets = Set.objects.values_list('id_syllabus', flat=True).filter(settask__id_task=self)
         return Syllabus.objects.filter(id__in=sets).distinct('id')
+
 
 class ProblemCategory(models.Model):
     id_task = models.ForeignKey(Problem, models.CASCADE, db_column='id_task')

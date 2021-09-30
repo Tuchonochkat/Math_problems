@@ -77,13 +77,8 @@ def task_edit_view(request, id):
     # начальное значение для полей задачи
     task = get_object_or_404(Problem, id=id)
     # задаем начальные значения тем и категорий
-    theme_cat = ThemeCategory.objects.filter(problemcategory__id_task=task.id).values_list('id', 'id_theme',
-                                                                                           'id_category')
-    initial = {}
-    for i, item in enumerate(theme_cat):
-        initial['theme' + str(i + 1)] = Theme.objects.get(id=item[1])
-        if item[2]:
-            initial['category' + str(i + 1)] = Category.objects.get(id=item[2])
+    theme_cat = ThemeCategory.objects.filter(problemcategory__id_task=task.id).order_by('id_theme')
+    initial = {'theme' + str(i + 1): item for i, item in enumerate(theme_cat)}
 
     if request.method == "POST":
         print('post')
@@ -96,9 +91,8 @@ def task_edit_view(request, id):
             theme_cat_new = ThemeCategory.objects.none()
             for i in range(5):
                 theme = form.cleaned_data.get('theme' + str(i+1), None)
-                category = form.cleaned_data.get('category'+str(i+1), None)
                 if theme:
-                    theme_cat_new = theme_cat_new.union(ThemeCategory.objects.filter(id_theme=theme, id_category=category))
+                    theme_cat_new = theme_cat_new.union(ThemeCategory.objects.filter(id=theme.id))
             category_to_remove = theme_cat_old.difference(theme_cat_new)
             category_to_add = theme_cat_new.difference(theme_cat_old)
             for cat in category_to_remove:
@@ -124,15 +118,15 @@ def new_task_view(request):
             task = form.save(commit=False)
             task.id_google = 0
             task.save()
-            if not task.id_orig:
-                task.id_orig = task.id
-                task.save()
-            for i in range(5):
-                theme = form.cleaned_data.get('theme'+str(i+1), None)
-                category = form.cleaned_data.get('category'+str(i+1), None)
-                if theme:
-                    theme_category = ThemeCategory.objects.get(id_theme=theme, id_category=category)
-                    ProblemCategory.objects.get_or_create(id_task=task, id_theme_cat=theme_category)
+            # if not task.id_orig:
+            #     task.id_orig = task.id
+            #     task.save()
+            # for i in range(5):
+            #     theme = form.cleaned_data.get('theme'+str(i+1), None)
+            #     category = form.cleaned_data.get('category'+str(i+1), None)
+            #     if theme:
+            #         theme_category = ThemeCategory.objects.get(id_theme=theme, id_category=category)
+            #         ProblemCategory.objects.get_or_create(id_task=task, id_theme_cat=theme_category)
             return redirect('/task_'+str(task.id))
     else:
         form = TaskForm()

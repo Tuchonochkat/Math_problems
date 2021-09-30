@@ -55,40 +55,25 @@
             <div class="col-sm">
                 {{ form.theme1|add_class:"form-control" }}
             </div>
-            <div class="col-sm">
-                {{ form.category1|add_class:"form-control" }}
-            </div>
         </div>
         <div class="row">
             <div class="col-sm">
                 {{ form.theme2|add_class:"form-control" }}
-            </div>
-            <div class="col-sm">
-                {{ form.category2|add_class:"form-control" }}
             </div>
         </div>
         <div class="row">
             <div class="col-sm">
                 {{ form.theme3|add_class:"form-control" }}
             </div>
-            <div class="col-sm">
-                {{ form.category3|add_class:"form-control" }}
-            </div>
         </div>
         <div class="row">
             <div class="col-sm">
                 {{ form.theme4|add_class:"form-control" }}
             </div>
-            <div class="col-sm">
-                {{ form.category4|add_class:"form-control" }}
-            </div>
         </div>
         <div class="row">
             <div class="col-sm">
                 {{ form.theme5|add_class:"form-control" }}
-            </div>
-            <div class="col-sm">
-                {{ form.category5|add_class:"form-control" }}
             </div>
         </div>
 
@@ -104,82 +89,4 @@
         </div>
         <button type="submit" class="save btn btn-default">Сохранить</button>
     </form>
-
-        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-		<script>
-		    $("#id_theme1").change(function () {
-		      var url = $("#taskForm").attr("data-categories-url");
-		      var themeId = $(this).val();
-
-		      $.ajax({
-		        url: url,
-		        data: {
-		          'theme': themeId
-		        },
-		        success: function (data) {
-		          $("#id_category1").html(data);
-		        }
-		      });
-		    });
-
-		    $("#id_theme2").change(function () {
-		      var url = $("#taskForm").attr("data-categories-url");
-		      var themeId = $(this).val();
-
-		      $.ajax({
-		        url: url,
-		        data: {
-		          'theme': themeId
-		        },
-		        success: function (data) {
-		          $("#id_category2").html(data);
-		        }
-		      });
-		    });
-
-		    $("#id_theme3").change(function () {
-		      var url = $("#taskForm").attr("data-categories-url");
-		      var themeId = $(this).val();
-
-		      $.ajax({
-		        url: url,
-		        data: {
-		          'theme': themeId
-		        },
-		        success: function (data) {
-		          $("#id_category3").html(data);
-		        }
-		      });
-		    });
-
-		    $("#id_theme4").change(function () {
-		      var url = $("#taskForm").attr("data-categories-url");
-		      var themeId = $(this).val();
-
-		      $.ajax({
-		        url: url,
-		        data: {
-		          'theme': themeId
-		        },
-		        success: function (data) {
-		          $("#id_category4").html(data);
-		        }
-		      });
-		    });
-
-		    $("#id_theme5").change(function () {
-		      var url = $("#taskForm").attr("data-categories-url");
-		      var themeId = $(this).val();
-
-		      $.ajax({
-		        url: url,
-		        data: {
-		          'theme': themeId
-		        },
-		        success: function (data) {
-		          $("#id_category5").html(data);
-		        }
-		      });
-		    });
-		  </script>
 {% endblock %}
