@@ -70,7 +70,7 @@ class Problem(models.Model):
         return ThemeCategory.objects.filter(problemcategory__id_task=self)
 
     def dubles(self):
-        return Problem.objects.filter(id_orig=self.id_orig).exclude(id=self.id)
+        return Problem.objects.filter(id_orig=self.id_orig).exclude(id=self.id).order_by('id')
 
     def type(self):
         return Type.objects.get(id=self.id_type)

@@ -117,16 +117,21 @@ def new_task_view(request):
         if form.is_valid():
             task = form.save(commit=False)
             task.id_google = 0
+            if not task.id_orig:
+                task.id_orig = task.id
+            else:
+                task_orig = Problem.objects.filter(id=task.id_orig).first()
+                if task_orig == 0:
+                    task.id_orig = task.id
+                else:
+                    if task_orig.id != task_orig.id_orig:
+                        task.id_orig = task_orig.id_orig
             task.save()
-            # if not task.id_orig:
-            #     task.id_orig = task.id
-            #     task.save()
-            # for i in range(5):
-            #     theme = form.cleaned_data.get('theme'+str(i+1), None)
-            #     category = form.cleaned_data.get('category'+str(i+1), None)
-            #     if theme:
-            #         theme_category = ThemeCategory.objects.get(id_theme=theme, id_category=category)
-            #         ProblemCategory.objects.get_or_create(id_task=task, id_theme_cat=theme_category)
+            for i in range(5):
+                theme = form.cleaned_data.get('theme'+str(i+1), None)
+                if theme:
+                    theme_category = ThemeCategory.objects.get(id=theme.id)
+                    ProblemCategory.objects.get_or_create(id_task=task, id_theme_cat=theme_category)
             return redirect('/task_'+str(task.id))
     else:
         form = TaskForm()
