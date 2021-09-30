@@ -36,12 +36,19 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+
 class ThemeCategory(models.Model):
     id_theme = models.ForeignKey(Theme, models.CASCADE, db_column='id_theme')
     id_category = models.ForeignKey(Category, models.CASCADE, db_column='id_category', blank=True, null=True)
 
     class Meta:
         db_table = 'theme_category'
+
+    def __str__(self):
+        if self.id_category:
+            return '{}. {}.'.format(self.id_theme, self.id_category)
+        else:
+            return '{}.'.format(self.id_theme)
 
 
 class Problem(models.Model):

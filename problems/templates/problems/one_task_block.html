@@ -11,16 +11,15 @@
 			{% for category in task.categories %}
 			<a href="/problems/?theme={{ category.id_theme.id }}&category={{ category.id_category.id }}"
 			 class="text-secondary">
-				{{ category.id_theme }}.
-				{% if category.id_category %} {{ category.id_category }}. {% endif %}</a><br/>
+				{{ category }}</a><br/>
 			{% endfor %}
 		</div>
 
 		<div class="col-sm-4">
 			{% if task.id_type %}
 				Тип: {{ task.id_type }}
-			{% endif %}
 			<br/>
+			{% endif %}
 			{% if task.dubles %}
 				{% if task.id == task.id_orig %}
 					У задачи есть <a href="/task_{{ task.id }}">дубли</a>
@@ -58,7 +57,7 @@
 			<br/>
 			{% endfor %}
 		{% else %}
-			Не используется
+			Не используется в подборках
 		{% endif %}
 		</div>
 	</div>
