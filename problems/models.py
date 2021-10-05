@@ -1,10 +1,4 @@
-# This is an auto-generated Django model module.
-# You'll have to do the following manually to clean this up:
-#   * Rearrange models' order
-#   * Make sure each model has one field with primary_key=True
-#   * Make sure each ForeignKey and OneToOneField has `on_delete` set to the desired behavior
-#   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
-# Feel free to rename the models, but don't rename db_table values or field names.
+from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -18,6 +12,7 @@ class Type(models.Model):
     def __str__(self):
         return self.name
 
+
 class Theme(models.Model):
     name = models.CharField(max_length=255)
 
@@ -26,6 +21,7 @@ class Theme(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Category(models.Model):
     name = models.CharField(max_length=63)
@@ -78,6 +74,7 @@ class Problem(models.Model):
         sets = Set.objects.values_list('id_syllabus', flat=True).filter(settask__id_task=self)
         return Syllabus.objects.filter(id__in=sets).distinct('id')
 
+
 class ProblemCategory(models.Model):
     id_task = models.ForeignKey(Problem, models.CASCADE, db_column='id_task')
     id_theme_cat = models.ForeignKey('ThemeCategory', models.CASCADE, db_column='id_theme_cat')
@@ -113,33 +110,46 @@ class Syllabus(models.Model):
         return Set.objects.filter(id_syllabus=self.id).order_by('enum_set')
 
 
-class Set(models.Model):
+class SetCart(models.Model):
     id_syllabus = models.ForeignKey('Syllabus', models.CASCADE, db_column='id_syllabus', blank=True, null=True)
     name = models.CharField(max_length=63, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     enum_set = models.IntegerField()
 
     class Meta:
-        db_table = 'set'
+        abstract = True
 
     def __str__(self):
         return self.name
+
+
+class Set(SetCart):
+
+    class Meta:
+        db_table = 'set'
 
     def tasks(self):
         return SetTask.objects.filter(id_set=self.id).order_by('enum_task')
 
 
-class SetTask(models.Model):
-    id_set = models.ForeignKey(Set, models.CASCADE, db_column='id_set')
+class SetCartTask(models.Model):
     id_task = models.ForeignKey(Problem, models.CASCADE, db_column='id_task')
     enum_task = models.IntegerField()
     criteries = models.TextField(blank=True, null=True)
+
+    class Meta:
+        abstract = True
+
+
+class SetTask(SetCartTask):
+    id_set = models.ForeignKey(Set, models.CASCADE, db_column='id_set')
 
     class Meta:
         db_table = 'set_task'
 
     def comments(self):
         return Comments.objects.filter(id_set_task=self).order_by('date')
+
 
 class Comments(models.Model):
     id_set_task = models.ForeignKey('SetTask', models.CASCADE, db_column='id_set_task')
@@ -152,3 +162,14 @@ class Comments(models.Model):
 
     def __str__(self):
         return self.description
+
+
+class Cart(SetCart):
+    user = models.OneToOneField(User, models.CASCADE)
+
+    def tasks(self):
+        return CartTask.objects.filter(id_set=self.id).order_by('enum_task')
+
+
+class CartTask(SetCartTask):
+    id_cart = models.ForeignKey(Cart, models.CASCADE, db_column='id_cart')
