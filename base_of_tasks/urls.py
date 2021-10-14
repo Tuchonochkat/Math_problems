@@ -26,7 +26,7 @@ urlpatterns = [
     path('', RedirectView.as_view(url='/problems')),
     path('login/', LogView.as_view()),
     path('logout/', LogoutView.as_view(template_name='problems/logout.html')),
-    path('problems/', problems_view),
+    path('problems/', problems_view, name='problems'),
     path('task_<int:id>', task_view),
     path('task_<int:id>/edit', task_edit_view),
     path('task/new', new_task_view),

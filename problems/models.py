@@ -61,6 +61,9 @@ class Problem(models.Model):
     class Meta:
         db_table = 'problem'
 
+    def __str__(self):
+        return self.task
+
     def categories(self):
         return ThemeCategory.objects.filter(problemcategory__id_task=self)
 
@@ -166,6 +169,7 @@ class Comments(models.Model):
 
 class Cart(SetCart):
     user = models.OneToOneField(User, models.CASCADE)
+    enum_set = models.IntegerField(blank=True, null=True)
 
     def tasks(self):
         return CartTask.objects.filter(id_set=self.id).order_by('enum_task')

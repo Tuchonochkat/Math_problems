@@ -6,7 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 
 
-from problems.models import Theme, Category, ThemeCategory, Problem, ProblemCategory, Trajectory, Syllabus
+from problems.models import Theme, Category, ThemeCategory, Problem, ProblemCategory, Trajectory, Syllabus, \
+    Cart, CartTask
 from problems.forms import TaskForm, FilterForm
 
 
@@ -19,7 +20,26 @@ class LogView(LoginView):
 
 @login_required(login_url='/login')
 def start_view(request):
-    return render(request, 'problems/main.html')
+    cart = Cart.objects.get(user=request.user)
+    items = Problem.objects.filter(carttask__id_cart=cart)
+    return render(request, 'problems/main.html', context={'items': items})
+
+
+# функция от реквеста, возвращает список задач в корзине юзера
+def cart_items(request):
+    cart = Cart.objects.get(user=request.user)
+    items = Problem.objects.filter(carttask__id_cart=cart)
+    return items
+
+
+# процедура добавления товара в корзину
+def into_cart(request):
+    id_task = request.GET.get('into_cart', None)
+    if id_task:
+        cart = Cart.objects.get(user=request.user)
+        task = Problem.objects.get(id=id_task)
+        enum_task = len(CartTask.objects.filter(id_cart=cart))+1
+        CartTask.objects.get_or_create(id_cart=cart, id_task=task, enum_task=enum_task)
 
 
 def load_categories(request):
@@ -37,6 +57,7 @@ def load_categories(request):
 def problems_view(request):
     theme = request.GET.get('theme', None)
     category = request.GET.get('category', None)
+    into_cart(request)
     if theme:
         if category:
             theme_cat = ThemeCategory.objects.values_list('id', flat=True).filter(id_theme=theme, id_category=category)
@@ -62,14 +83,16 @@ def problems_view(request):
                            'pages_after': [i for i in range(int(page_number)+1, int(page_number)+4) if i <= paginator.num_pages],
                            'FilterForm': form,
                            'theme': theme,
-                           'category': category})
+                           'category': category,
+                           'items': cart_items(request)})
 
 
 @login_required(login_url='/login')
 def task_view(request, id):
     task = Problem.objects.get(id=id)
     return render(request, 'problems/task.html',
-                  context={'task': task})
+                  context={'task': task,
+                           'items': cart_items(request)})
 
 
 @login_required(login_url='/login')
@@ -142,10 +165,12 @@ def new_task_view(request):
 @login_required(login_url='/login')
 def sets_view(request):
     return render(request, 'problems/trajectories.html',
-                  context={'trajectories': Trajectory.objects.all()})
+                  context={'trajectories': Trajectory.objects.all(),
+                           'items': cart_items(request)})
 
 
 @login_required(login_url='/login')
 def syllabus_view(request, id_syllabus):
     return render(request, 'problems/syllabus.html',
-                  context={'syllabus': Syllabus.objects.get(id=id_syllabus)})
+                  context={'syllabus': Syllabus.objects.get(id=id_syllabus),
+                           'items': cart_items(request)})
